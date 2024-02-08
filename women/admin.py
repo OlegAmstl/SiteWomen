@@ -5,11 +5,15 @@ from .models import Women, Category
 
 @admin.register(Women)
 class WomenAdmin(admin.ModelAdmin):
-    list_display = ['id', 'title', 'time_create', 'is_published', 'cat']
-    list_display_links = ['title', 'id']
+    list_display = ['title', 'time_create', 'is_published', 'cat', 'brif_info']
+    list_display_links = ['title']
     ordering = ['time_create', 'title']
     list_editable = ('is_published',)
     list_per_page = 5
+
+    @admin.display(description='Краткое описание')
+    def brif_info(self, women: Women):
+        return f'Описание {len(women.content)} символов.'
 
 
 @admin.register(Category)
