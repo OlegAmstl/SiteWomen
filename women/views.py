@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.shortcuts import HttpResponse
 
 from .models import Women, Category, TagPost
+from .forms import AddPostForm
 
 menu = [
     {'title': 'О сайте', 'url_name': 'about'},
@@ -44,7 +45,17 @@ def page_not_found(request, exception):
 
 
 def addpage(request):
-    return HttpResponse(f'Добавление статьи')
+    if request.method == 'POST':
+        form = AddPostForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('home')
+    else:
+        form = AddPostForm()
+    data = {'menu': menu,
+            'title': 'Добавить статью',
+            'form': form}
+    return render(request, 'women/addpage.html', context=data)
 
 
 def contact(request):
