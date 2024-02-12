@@ -35,6 +35,11 @@ class Women(models.Model):
                             unique=True,
                             default='',
                             verbose_name='Слаг')
+    photo = models.ImageField(upload_to='photos/%Y/%m/%d/',
+                              default=None,
+                              blank=True,
+                              null=True,
+                              verbose_name='Фото')
     content = models.TextField(blank=True,
                                verbose_name='Контент')
     time_create = models.DateTimeField(auto_now_add=True,
@@ -65,10 +70,6 @@ class Women(models.Model):
 
     def get_absolute_url(self):
         return reverse('post', kwargs={'post_slug': self.slug})
-
-    # def save(self, *args, **kwargs):
-    #     self.slug = slugify(translit_to_eng(self.title))
-    #     super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = 'Известные женщины'
@@ -116,3 +117,9 @@ class Husband(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class UploadFiles(models.Model):
+    """Модель загрузки файлов."""
+
+    file = models.FileField(upload_to='uploads_model')
