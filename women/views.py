@@ -1,7 +1,7 @@
 from django.http import HttpResponseNotFound, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.shortcuts import HttpResponse
-from django.views.generic import ListView
+from django.views.generic import ListView, DetailView
 
 from .models import Women, Category, TagPost
 from .forms import AddPostForm
@@ -12,17 +12,6 @@ menu = [
     {'title': 'Обратная связь', 'url_name': 'contact'},
     {'title': 'Войти', 'url_name': 'login'},
 ]
-
-
-# def index(request):
-#     posts = Women.published.all().select_related('cat')
-#     data = {
-#         'title': 'Главная страница',
-#         'menu': menu,
-#         'posts': posts,
-#         'cat_selected': 0,
-#     }
-#     return render(request, 'women/index.html', data)
 
 class WomenHome(ListView):
     """Отображение главной страницы."""
@@ -93,18 +82,24 @@ def show_post(request, post_slug):
     return render(request, 'women/post.html', data)
 
 
-# def show_category(request, cat_slug):
-#     category = get_object_or_404(Category, slug=cat_slug)
-#     posts = Women.published.filter(cat_id=category.pk).select_related('cat')
-#
-#     data = {
-#         'title': f'Рубрика: {category.name}',
-#         'menu': menu,
-#         'posts': posts,
-#         'cat_selected': category.pk,
-#     }
-#     return render(request, 'women/index.html', data)
+class ShowPost(DetailView):
+    """Представление о посте."""
 
+    template_name = 'women/post.html'
+    slug_url_kwarg = 'post_slug'
+    context_object_name = 'post'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        cat = context['posts'][0].cat
+        context['title'] = context['post'].title
+        context['menu'] = menu
+        context['cat_selected'] = cat.id
+        return context
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(Women.published,
+                                 slug=self.kwargs[self.slug_url_kwarg])
 
 class WomenCategory(ListView):
     """Представление категории женщин."""
@@ -121,21 +116,27 @@ class WomenCategory(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         cat = context['posts'][0].cat
-        context['title'] = 'Категория - ' + cat.id
+        context['title'] = 'Категория - ' + str(cat.id)
         context['menu'] = menu
         context['cat_selected'] = cat.id
         return context
 
 
-def show_tag_postlist(request, tag_slug):
-    tag = get_object_or_404(TagPost, slug=tag_slug)
-    posts = tag.tags.filter(
-        is_published=Women.Status.PUBLISHED).select_related('cat')
+class TagPostList(ListView):
+    """Представление тегов."""
 
-    data = {
-        'title': f'Тэг: {tag.tag}',
-        'menu': menu,
-        'posts': posts,
-        'cat_selected': None
-    }
-    return render(request, 'women/index.html', context=data)
+    template_name = 'women/index.html'
+    context_object_name = 'posts'
+    allow_empty = False
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        tag = TagPost.objects.get(slug=self.kwargs['tag_slug'])
+        context['title'] = 'Тег: ' + tag.tag
+        context['menu'] = menu
+        context['cat_selected'] = None
+        return context
+
+    def get_queryset(self):
+        return Women.published.filter(
+            tags__slug=self.kwargs['tag_slug']).select_related('cat')
