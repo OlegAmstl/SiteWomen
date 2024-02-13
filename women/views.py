@@ -1,7 +1,8 @@
 from django.http import HttpResponseNotFound, Http404
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, get_object_or_404
 from django.shortcuts import HttpResponse
-from django.views.generic import ListView, DetailView
+from django.urls import reverse_lazy
+from django.views.generic import ListView, DetailView, CreateView, UpdateView
 
 from .models import Women, Category, TagPost
 from .forms import AddPostForm
@@ -12,6 +13,7 @@ menu = [
     {'title': 'Обратная связь', 'url_name': 'contact'},
     {'title': 'Войти', 'url_name': 'login'},
 ]
+
 
 class WomenHome(ListView):
     """Отображение главной страницы."""
@@ -49,18 +51,29 @@ def page_not_found(request, exception):
     return HttpResponseNotFound('<h1>Страница не найдена</h1>')
 
 
-def addpage(request):
-    if request.method == 'POST':
-        form = AddPostForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-            return redirect('home')
-    else:
-        form = AddPostForm()
-    data = {'menu': menu,
-            'title': 'Добавить статью',
-            'form': form}
-    return render(request, 'women/addpage.html', context=data)
+class AddPage(CreateView):
+    """Представление добавления поста."""
+
+    form_class = AddPostForm
+    template_name = 'women/addpage.html'
+    # success_url = reverse_lazy('home')
+    extra_context = {
+        'menu': menu,
+        'title': 'Добавление статьи'
+    }
+
+
+class UpdatePage(UpdateView):
+    """Представление изменения поста."""
+
+    model = Women
+    fields = ['title', 'content', 'photo', 'is_published', 'cat']
+    template_name = 'women/addpage.html'
+    success_url = reverse_lazy('home')
+    extra_context = {
+        'menu': menu,
+        'title': 'Добавление статьи'
+    }
 
 
 def contact(request):
@@ -100,6 +113,7 @@ class ShowPost(DetailView):
     def get_object(self, queryset=None):
         return get_object_or_404(Women.published,
                                  slug=self.kwargs[self.slug_url_kwarg])
+
 
 class WomenCategory(ListView):
     """Представление категории женщин."""
