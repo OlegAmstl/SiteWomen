@@ -5,9 +5,18 @@
 
 <form method="post">
     {% csrf_token %}
-    {{ from.as_p }}
+    <input type="hidden" name="next" value="{{ next }}">
+    <div class="form-error">{{ form.not_field_errors }}</div>
+    {% for f in form %}
     <p>
-        <button type="submit">Войти</button>
+        <label for="{{ f.id_for_label }}" class="form-label">
+            {{ f.label }}
+        </label>{{ f }}
+    </p>
+    <div class="form-error">{{ f.errors }}</div>
+    {% endfor %}
+    <p>
+        <button type="submit">Отправить</button>
     </p>
 </form>
 {% endblock %}
