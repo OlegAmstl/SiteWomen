@@ -24,7 +24,7 @@
 	<li class="last">{{ user.username }} | <a href="{% url 'users:logout' %}">Выйти</a></li>
 {% else %}
 	<li class="last"><a href="{% url 'users:login' %}">Войти</a> | <a
-			href="#">Регестация</a></li>
+			href="{% url 'users:register' %}">Регестация</a></li>
 {% endif %}
 			</ul>
 			<div class="clear"></div>
