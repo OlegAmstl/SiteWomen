@@ -1,12 +1,12 @@
-from django.http import HttpResponseNotFound, Http404
-from django.shortcuts import render, get_object_or_404
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.http import HttpResponseNotFound
 from django.shortcuts import HttpResponse
+from django.shortcuts import render, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView
-from django.contrib.auth.mixins import LoginRequiredMixin
 
-from .models import Women, Category, TagPost
 from .forms import AddPostForm
+from .models import Women, TagPost
 from .utils import DataMixin
 
 
@@ -42,12 +42,16 @@ def page_not_found(request, exception):
     return HttpResponseNotFound('<h1>Страница не найдена</h1>')
 
 
-class AddPage(LoginRequiredMixin, DataMixin, CreateView):
+class AddPage(LoginRequiredMixin,
+              PermissionRequiredMixin,
+              DataMixin,
+              CreateView):
     """Представление добавления поста."""
 
     form_class = AddPostForm
     template_name = 'women/addpage.html'
     title_page = 'Добавление статьи'
+    permission_required = 'women.add_women'
 
     def form_valid(self, form):
         w = form.save(commit=False)
@@ -55,7 +59,8 @@ class AddPage(LoginRequiredMixin, DataMixin, CreateView):
         return super().form_valid(form)
 
 
-class UpdatePage(DataMixin, UpdateView):
+class UpdatePage(PermissionRequiredMixin,
+                 DataMixin, UpdateView):
     """Представление изменения поста."""
 
     model = Women
@@ -63,6 +68,7 @@ class UpdatePage(DataMixin, UpdateView):
     template_name = 'women/addpage.html'
     success_url = reverse_lazy('home')
     title_page = 'Редактирование статьи'
+    permission_required = 'women.change_women'
 
 
 def contact(request):

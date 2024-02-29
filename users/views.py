@@ -1,12 +1,11 @@
-from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth import get_user_model
-from django.contrib.auth.views import LoginView, PasswordChangeView
-from django.views.generic import CreateView, UpdateView
-from django.urls import reverse, reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.views import LoginView, PasswordChangeView
+from django.urls import reverse_lazy
+from django.views.generic import CreateView, UpdateView
 
-from .forms import LoginUserForm, RegisterUserForm, ProfileUserForm, UserPasswordChangeForm
+from .forms import LoginUserForm, RegisterUserForm, ProfileUserForm, \
+    UserPasswordChangeForm
 
 
 class LoginUser(LoginView):
