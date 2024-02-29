@@ -1,12 +1,12 @@
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.auth.mixins import (LoginRequiredMixin,
+                                        PermissionRequiredMixin)
 from django.http import HttpResponseNotFound
-from django.shortcuts import HttpResponse
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import HttpResponse, get_object_or_404, render
 from django.urls import reverse_lazy
-from django.views.generic import ListView, DetailView, CreateView, UpdateView
+from django.views.generic import CreateView, DetailView, ListView, UpdateView
 
 from .forms import AddPostForm
-from .models import Women, TagPost
+from .models import TagPost, Women
 from .utils import DataMixin
 
 
